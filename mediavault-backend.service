@@ -1,0 +1,19 @@
+[Unit]
+Description=MediaVault Backend API
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=mercury
+Group=mercury
+WorkingDirectory=/home/mercury/projects/mediavault/backend
+Environment="PATH=/home/mercury/.pyenv/versions/3.11.9/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="PYENV_ROOT=/home/mercury/.pyenv"
+ExecStart=/home/mercury/.pyenv/versions/3.11.9/bin/uvicorn app.main:app --host 0.0.0.0 --port 8007 --workers 4
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

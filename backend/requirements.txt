@@ -1,0 +1,51 @@
+# FastAPI and ASGI server
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.18
+
+# Pydantic for validation and settings
+pydantic==2.10.6
+pydantic-settings==2.7.0
+
+# Database
+sqlalchemy==2.0.36
+psycopg2-binary==2.9.10
+alembic==1.14.0
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.1
+
+# HTTP client for external APIs
+requests==2.32.3
+httpx==0.28.1
+
+# Media file parsing and fuzzy matching
+guessit==3.8.0
+rapidfuzz==3.10.1
+
+# FFmpeg wrapper (optional - we'll use subprocess)
+# ffmpeg-python==0.2.0
+
+# Azure OpenAI
+openai==1.58.1
+
+# TMDb API client
+tmdbv3api==1.9.0
+
+# Langfuse observability
+langfuse==2.60.10
+
+# Utilities
+loguru==0.7.3
+python-dateutil==2.9.0.post0
+pytz==2024.2
+
+# GPU acceleration for MD5 hashing
+cupy-cuda12x==13.6.0
+
+# Development and testing
+pytest==8.3.4
+pytest-asyncio==0.24.0
+httpx==0.28.1
