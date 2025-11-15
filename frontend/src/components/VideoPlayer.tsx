@@ -10,6 +10,7 @@ interface VideoPlayerProps {
   resolution?: string;
   codec?: string;
   showMetadata?: boolean;
+  useSmartStream?: boolean;    // Use smart streaming (auto progressive or direct)
 }
 
 export default function VideoPlayer({
@@ -18,7 +19,8 @@ export default function VideoPlayer({
   quality,
   resolution,
   codec,
-  showMetadata = true
+  showMetadata = true,
+  useSmartStream = true
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<any>(null);
@@ -50,11 +52,7 @@ export default function VideoPlayer({
             'airplay',
             'fullscreen'
           ],
-          settings: ['quality', 'speed', 'loop'],
-          quality: {
-            default: 1080,
-            options: [4320, 2880, 2160, 1440, 1080, 720, 576, 480, 360, 240]
-          },
+          settings: ['speed', 'loop'],
           speed: {
             selected: 1,
             options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
@@ -181,13 +179,12 @@ export default function VideoPlayer({
 
         <video
           ref={videoRef}
-          crossOrigin="anonymous"
           playsInline
           controls
           style={{ width: '100%', display: error ? 'none' : 'block' }}
         >
           <source
-            src={`/api/stream/${fileId}`}
+            src={useSmartStream ? `/api/stream/${fileId}/smart` : `/api/stream/${fileId}`}
             type="video/mp4"
           />
           Your browser does not support the video tag.

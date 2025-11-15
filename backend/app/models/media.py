@@ -52,12 +52,15 @@ class MediaFile(Base):
 
     # TMDb metadata
     tmdb_id = Column(Integer, nullable=True, index=True)
+    tmdb_type = Column(String(20), nullable=True)  # "movie" or "tv"
     tmdb_title = Column(String(500), nullable=True)
+    tmdb_year = Column(Integer, nullable=True)
     tmdb_overview = Column(Text, nullable=True)
     tmdb_poster_path = Column(String(500), nullable=True)
     tmdb_rating = Column(Numeric(3, 1), nullable=True)
     tmdb_genres = Column(JSON, nullable=True)
     tmdb_last_updated = Column(DateTime(timezone=True), nullable=True)
+    imdb_id = Column(String(20), nullable=True, index=True)
 
     # Quality score
     quality_score = Column(Integer, nullable=True, index=True)

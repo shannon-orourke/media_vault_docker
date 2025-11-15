@@ -63,13 +63,35 @@ class NASService:
             mount_point = self.mount_point
 
         try:
+            # Check if the mount_point itself is a mountpoint
             result = subprocess.run(
                 ["mountpoint", "-q", mount_point],
                 timeout=5
             )
-            is_mounted = result.returncode == 0
-            self.is_mounted = is_mounted
-            return is_mounted
+            if result.returncode == 0:
+                self.is_mounted = True
+                return True
+
+            # If parent is not a mountpoint, check if volume subdirectories are mounted
+            # This handles the case where individual volumes are mounted separately
+            volume_paths = [
+                os.path.join(mount_point, "volume1", "docker"),
+                os.path.join(mount_point, "volume1", "videos")
+            ]
+
+            for vol_path in volume_paths:
+                if os.path.exists(vol_path) and os.path.isdir(vol_path):
+                    # Check if this is a mountpoint or if we can access it
+                    try:
+                        os.listdir(vol_path)
+                        self.is_mounted = True
+                        logger.debug(f"NAS mount detected via accessible path: {vol_path}")
+                        return True
+                    except (PermissionError, OSError):
+                        continue
+
+            self.is_mounted = False
+            return False
         except Exception as e:
             logger.error(f"Error checking mount status: {e}")
             return False

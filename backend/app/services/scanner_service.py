@@ -10,6 +10,7 @@ from app.models import MediaFile, ScanHistory, ArchiveFile
 from app.services.nas_service import NASService
 from app.services.ffmpeg_service import FFmpegService
 from app.services.quality_service import QualityService
+from app.services.tmdb_service import TMDbService
 from app.config import get_settings
 
 settings = get_settings()
@@ -23,6 +24,7 @@ class ScannerService:
         self.nas_service = NASService()
         self.ffmpeg_service = FFmpegService()
         self.quality_service = QualityService()
+        self.tmdb_service = TMDbService()
         self.video_extensions = settings.video_extensions_list
         self.archive_extensions = ['.rar', '.zip', '.7z', '.tar', '.gz', '.bz2']
 
@@ -302,6 +304,27 @@ class ScannerService:
                 media_file.media_type = "documentary"
             else:
                 media_file.media_type = "movie"
+
+            # Enrich with TMDb/IMDB metadata
+            if media_file.parsed_title and not media_file.tmdb_id:
+                try:
+                    tmdb_data = self.tmdb_service.enrich_media_metadata(
+                        title=media_file.parsed_title,
+                        year=media_file.parsed_year,
+                        media_type=media_file.media_type
+                    )
+
+                    if tmdb_data:
+                        media_file.tmdb_id = tmdb_data.get('tmdb_id')
+                        media_file.tmdb_type = tmdb_data.get('tmdb_type')
+                        media_file.tmdb_title = tmdb_data.get('tmdb_title')
+                        media_file.tmdb_year = tmdb_data.get('tmdb_year')
+                        media_file.tmdb_overview = tmdb_data.get('tmdb_overview')
+                        media_file.tmdb_poster_path = tmdb_data.get('tmdb_poster_path')
+                        media_file.imdb_id = tmdb_data.get('imdb_id')
+                        logger.debug(f"TMDb enriched: {media_file.parsed_title} (TMDb ID: {media_file.tmdb_id}, IMDB: {media_file.imdb_id})")
+                except Exception as e:
+                    logger.warning(f"TMDb enrichment failed for {media_file.parsed_title}: {e}")
 
             # Timestamps
             media_file.last_scanned_at = datetime.now()

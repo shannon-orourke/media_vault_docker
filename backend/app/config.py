@@ -43,7 +43,12 @@ class Settings(BaseSettings):
     nas_smb_password: str
     nas_smb_share: str = "volume1"
     nas_mount_path: str = "/mnt/nas-media"
-    nas_scan_paths: str = "/volume1/docker,/volume1/videos"
+    nas_scan_paths: str = (
+        "/volume1/docker/transmission/downloads/complete/tv,"
+        "/volume1/docker/transmission/downloads/complete/movies,"
+        "/volume1/videos,"
+        "/volume1/docker/data/torrents/torrents"
+    )
     nas_temp_delete_path: str = "/volume1/video/duplicates_before_purge"
     local_temp_delete_path: str = "./tmp/duplicates_before_purge"
     dev_media_fallback_path: str = ""

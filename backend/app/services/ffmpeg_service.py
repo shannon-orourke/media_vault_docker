@@ -242,3 +242,236 @@ class FFmpegService:
         except Exception as e:
             logger.error(f"Error generating thumbnail: {e}")
             return False
+
+    def transcode_for_streaming_gpu(
+        self,
+        input_path: str,
+        output_path: str,
+        width: int = 1280,
+        height: int = 720,
+        crf: int = 23,
+        use_gpu: bool = True
+    ) -> bool:
+        """
+        Transcode video for web streaming using GPU acceleration (NVENC).
+
+        Uses NVIDIA NVENC for hardware encoding which is much faster than CPU
+        and enables smooth streaming for comparison views.
+
+        Args:
+            input_path: Source video file path
+            output_path: Output video file path (should be .mp4)
+            width: Target width (default 1280)
+            height: Target height (default 720)
+            crf: Quality (18-28, lower is better quality, default 23)
+            use_gpu: Use GPU acceleration if True, CPU if False
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            if use_gpu:
+                # GPU-accelerated transcoding with NVENC
+                cmd = [
+                    settings.ffmpeg_path,
+                    "-hwaccel", "cuda",           # Use CUDA hardware acceleration
+                    "-hwaccel_output_format", "cuda",  # Keep frames on GPU
+                    "-i", input_path,
+                    "-vf", f"scale_cuda={width}:{height}",  # GPU-based scaling
+                    "-c:v", "h264_nvenc",         # NVIDIA H.264 encoder
+                    "-preset", "p4",              # NVENC preset (p1=fastest, p7=slowest/best)
+                    "-cq", str(crf),              # Constant quality mode
+                    "-c:a", "aac",                # AAC audio codec
+                    "-b:a", "128k",               # Audio bitrate
+                    "-movflags", "+faststart",    # Enable fast start for web streaming
+                    "-y",                         # Overwrite output
+                    output_path
+                ]
+            else:
+                # CPU fallback (slower but works without GPU)
+                cmd = [
+                    settings.ffmpeg_path,
+                    "-i", input_path,
+                    "-vf", f"scale={width}:{height}",
+                    "-c:v", "libx264",
+                    "-preset", "medium",
+                    "-crf", str(crf),
+                    "-c:a", "aac",
+                    "-b:a", "128k",
+                    "-movflags", "+faststart",
+                    "-y",
+                    output_path
+                ]
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                timeout=300  # 5 minute timeout
+            )
+
+            if result.returncode == 0:
+                logger.success(f"{'GPU' if use_gpu else 'CPU'} transcoding complete: {output_path}")
+                return True
+            else:
+                logger.error(f"Transcode failed: {result.stderr.decode()}")
+                return False
+
+        except subprocess.TimeoutExpired:
+            logger.error(f"Transcode timeout for {input_path}")
+            return False
+        except Exception as e:
+            logger.error(f"Error transcoding video: {e}")
+            return False
+
+    def create_preview_clip_gpu(
+        self,
+        input_path: str,
+        output_path: str,
+        start_time: str = "00:00:10",
+        duration: int = 30,
+        use_gpu: bool = True
+    ) -> bool:
+        """
+        Create a short preview clip from video using GPU acceleration.
+
+        Useful for generating quick previews for comparison without
+        transcoding the entire file.
+
+        Args:
+            input_path: Source video file
+            output_path: Output preview file path
+            start_time: Start timestamp (HH:MM:SS)
+            duration: Clip duration in seconds
+            use_gpu: Use GPU acceleration
+
+        Returns:
+            True if successful
+        """
+        try:
+            if use_gpu:
+                cmd = [
+                    settings.ffmpeg_path,
+                    "-hwaccel", "cuda",
+                    "-ss", start_time,
+                    "-i", input_path,
+                    "-t", str(duration),
+                    "-c:v", "h264_nvenc",
+                    "-preset", "p4",
+                    "-c:a", "aac",
+                    "-b:a", "128k",
+                    "-movflags", "+faststart",
+                    "-y",
+                    output_path
+                ]
+            else:
+                cmd = [
+                    settings.ffmpeg_path,
+                    "-ss", start_time,
+                    "-i", input_path,
+                    "-t", str(duration),
+                    "-c:v", "libx264",
+                    "-preset", "fast",
+                    "-c:a", "aac",
+                    "-b:a", "128k",
+                    "-movflags", "+faststart",
+                    "-y",
+                    output_path
+                ]
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                timeout=60
+            )
+
+            return result.returncode == 0
+
+        except Exception as e:
+            logger.error(f"Error creating preview clip: {e}")
+            return False
+
+    def check_gpu_encoding_available(self) -> bool:
+        """
+        Check if GPU encoding (NVENC) is available in FFmpeg.
+
+        Returns:
+            True if NVENC encoders are available
+        """
+        try:
+            result = subprocess.run(
+                [settings.ffmpeg_path, "-encoders"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            return "h264_nvenc" in result.stdout
+
+        except Exception:
+            return False
+
+    def is_browser_compatible(self, video_codec: Optional[str], audio_codec: Optional[str],
+                             container_format: Optional[str]) -> dict:
+        """
+        Check if media file codecs are browser-compatible for direct streaming.
+
+        Browser compatibility:
+        - Video: H.264, VP8, VP9, AV1
+        - Audio: AAC, MP3, Opus, Vorbis
+        - Container: MP4, WebM
+
+        Args:
+            video_codec: Video codec name (e.g., 'h264', 'hevc')
+            audio_codec: Audio codec name (e.g., 'aac', 'dts')
+            container_format: Container format (e.g., 'mp4', 'mkv')
+
+        Returns:
+            Dict with compatibility info and recommendations
+        """
+        # Browser-compatible codecs
+        COMPATIBLE_VIDEO = ['h264', 'vp8', 'vp9', 'av1']
+        COMPATIBLE_AUDIO = ['aac', 'mp3', 'opus', 'vorbis']
+        COMPATIBLE_CONTAINERS = ['mp4', 'webm']
+
+        # Incompatible audio codecs that require transcoding
+        INCOMPATIBLE_AUDIO = ['dts', 'ac3', 'eac3', 'truehd', 'dca', 'flac', 'pcm_s16le', 'pcm_s24le']
+
+        # Normalize codec names (lowercase, remove variants)
+        video_codec = (video_codec or '').lower().split('(')[0].strip()
+        audio_codec = (audio_codec or '').lower().split('(')[0].strip()
+        container_format = (container_format or '').lower().split(',')[0].strip()
+
+        # Check video compatibility
+        video_compatible = video_codec in COMPATIBLE_VIDEO
+
+        # Check audio compatibility
+        audio_compatible = audio_codec in COMPATIBLE_AUDIO
+        audio_needs_transcode = audio_codec in INCOMPATIBLE_AUDIO
+
+        # Check container compatibility
+        container_compatible = container_format in COMPATIBLE_CONTAINERS
+
+        # Overall compatibility
+        fully_compatible = video_compatible and audio_compatible and container_compatible
+
+        return {
+            'compatible': fully_compatible,
+            'video_compatible': video_compatible,
+            'audio_compatible': audio_compatible,
+            'container_compatible': container_compatible,
+            'needs_video_transcode': not video_compatible,
+            'needs_audio_transcode': audio_needs_transcode or not audio_compatible,
+            'needs_remux': video_compatible and audio_compatible and not container_compatible,
+            'recommendation': self._get_streaming_recommendation(
+                fully_compatible, video_compatible, audio_compatible, container_compatible
+            )
+        }
+
+    def _get_streaming_recommendation(self, fully_compatible: bool, video_ok: bool,
+                                      audio_ok: bool, container_ok: bool) -> str:
+        """Get streaming method recommendation based on compatibility."""
+        if fully_compatible:
+            return "direct_stream"  # Use existing range request streaming
+        elif video_ok and audio_ok and not container_ok:
+            return "remux_only"  # Fast container change, no transcode
+        else:
+            return "hls_transcode"  # Full transcode with adaptive streaming

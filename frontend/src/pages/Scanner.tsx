@@ -15,8 +15,15 @@ import { IconScan, IconCopy } from '@tabler/icons-react';
 import { mediaApi } from '../services/api';
 import { notifications } from '@mantine/notifications';
 
+const DEFAULT_SCAN_PATHS = [
+  '/volume1/docker/transmission/downloads/complete/tv',
+  '/volume1/docker/transmission/downloads/complete/movies',
+  '/volume1/videos',
+  '/volume1/docker/data/torrents/torrents',
+].join('\n');
+
 export default function Scanner() {
-  const [paths, setPaths] = useState('/volume1/docker\n/volume1/videos');
+  const [paths, setPaths] = useState(DEFAULT_SCAN_PATHS);
   const [scanType, setScanType] = useState<'full' | 'incremental'>('full');
   const [scanning, setScanning] = useState(false);
   const [deduplicating, setDeduplicating] = useState(false);
@@ -105,7 +112,7 @@ export default function Scanner() {
 
           <Textarea
             label="NAS Paths (one per line)"
-            placeholder="/volume1/docker&#10;/volume1/videos"
+            placeholder={DEFAULT_SCAN_PATHS}
             value={paths}
             onChange={(e) => setPaths(e.currentTarget.value)}
             rows={4}

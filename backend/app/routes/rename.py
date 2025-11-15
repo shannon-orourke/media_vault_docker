@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from app.database import get_db
 from app.models import MediaFile
 from app.services.rename_service import RenameService
-from app.services.tmdb_service import TMDBService
+from app.services.tmdb_service import TMDbService
 
 router = APIRouter(prefix="/rename", tags=["rename"])
 
@@ -122,7 +122,7 @@ def tmdb_search(
     if not media_file:
         raise HTTPException(status_code=404, detail="Media file not found")
 
-    tmdb_service = TMDBService()
+    tmdb_service = TMDbService()
 
     # Use parsed title or provided query
     query = request.query or media_file.parsed_title or media_file.filename
@@ -148,7 +148,7 @@ def tmdb_apply(
     if not media_file:
         raise HTTPException(status_code=404, detail="Media file not found")
 
-    tmdb_service = TMDBService()
+    tmdb_service = TMDbService()
 
     # Get TMDB details
     tmdb_data = tmdb_service.get_details(request.tmdb_id, request.media_type)
@@ -203,7 +203,7 @@ def batch_tmdb_rename(
     db: Session = Depends(get_db)
 ):
     """Batch TMDB rename for multiple files (e.g., entire TV season)."""
-    tmdb_service = TMDBService()
+    tmdb_service = TMDbService()
     rename_service = RenameService(db)
 
     results = []

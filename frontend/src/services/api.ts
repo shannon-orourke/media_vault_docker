@@ -35,9 +35,14 @@ export interface MediaFile {
   dominant_audio_language: string | null;
   parsed_title: string | null;
   parsed_year: number | null;
+  parsed_season: number | null;
+  parsed_episode: number | null;
   media_type: string | null;
   is_duplicate: boolean;
   discovered_at: string;
+  tmdb_id: number | null;
+  tmdb_type: string | null;
+  imdb_id: string | null;
 }
 
 export interface RenameHistoryEntry {

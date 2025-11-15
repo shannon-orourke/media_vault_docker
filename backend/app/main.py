@@ -1,12 +1,12 @@
 """MediaVault FastAPI application."""
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 import sys
 
 from app.config import get_settings
 from app.database import init_db
-from app.routes import scan, media, duplicates, archives, deletions, stream, rename
+from app.routes import scan, media, duplicates, archives, deletions, stream, rename, nas
 
 # Configure logger
 logger.remove()
@@ -34,6 +34,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# Security headers middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    """Add security headers to all responses."""
+    response = await call_next(request)
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
+
+
 # Include routers
 app.include_router(scan.router, prefix="/api")
 app.include_router(media.router, prefix="/api")
@@ -42,6 +55,7 @@ app.include_router(archives.router, prefix="/api")
 app.include_router(deletions.router, prefix="/api")
 app.include_router(stream.router, prefix="/api")
 app.include_router(rename.router, prefix="/api")
+app.include_router(nas.router, prefix="/api")
 
 
 @app.on_event("startup")

@@ -1,0 +1,14 @@
+[Unit]
+Description=MediaVault NAS Mount Health Check
+After=network-online.target mnt-nas-media-volume1-docker.mount mnt-nas-media-volume1-videos.mount
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/mediavault-mount-health-monitor.sh
+StandardOutput=journal
+StandardError=journal
+User=root
+
+[Install]
+WantedBy=multi-user.target

@@ -15,7 +15,7 @@ import {
   Button,
   Paper,
 } from '@mantine/core';
-import { IconSearch, IconTrash, IconInfoCircle, IconPlayerPlay, IconEdit } from '@tabler/icons-react';
+import { IconSearch, IconTrash, IconInfoCircle, IconPlayerPlay, IconEdit, IconExternalLink } from '@tabler/icons-react';
 import { mediaApi, type MediaFile } from '../services/api';
 import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
@@ -385,10 +385,86 @@ export default function Library() {
                             children: (
                               <Stack gap="xs">
                                 <Text size="sm"><strong>Path:</strong> {file.filepath}</Text>
-                                <Text size="sm"><strong>Codec:</strong> {file.video_codec} / {file.audio_codec}</Text>
-                                <Text size="sm"><strong>Bitrate:</strong> {file.bitrate} kbps</Text>
-                                <Text size="sm"><strong>Audio Channels:</strong> {file.audio_channels}</Text>
-                                <Text size="sm"><strong>MD5:</strong> {file.md5_hash}</Text>
+                                <Text size="sm">
+                                  <strong>Codec:</strong> {file.video_codec || 'Unknown'} / {file.audio_codec || 'Unknown'}
+                                </Text>
+                                <Text size="sm">
+                                  <strong>Bitrate:</strong> {file.bitrate ? `${Math.round(file.bitrate / 1000)} Mbps` : 'N/A'}
+                                </Text>
+                                <Text size="sm">
+                                  <strong>Audio Channels:</strong> {file.audio_channels || 'N/A'}
+                                </Text>
+                                <Group gap="xs">
+                                  <Text size="sm">
+                                    <strong>MD5:</strong> {file.md5_hash ? 'Yes' : 'Not calculated'}
+                                  </Text>
+                                  {file.md5_hash && (
+                                    <Badge
+                                      variant="light"
+                                      style={{ cursor: 'pointer' }}
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(file.md5_hash || '');
+                                        notifications.show({
+                                          title: 'MD5 Hash',
+                                          message: file.md5_hash,
+                                          color: 'blue',
+                                          autoClose: 5000,
+                                        });
+                                      }}
+                                    >
+                                      Copy Hash
+                                    </Badge>
+                                  )}
+                                </Group>
+                                {(file.tmdb_id || file.imdb_id || file.parsed_title) && (
+                                  <Group gap="xs" mt="md">
+                                    {/* TMDb Link */}
+                                    {file.tmdb_id ? (
+                                      <Button
+                                        variant="light"
+                                        size="sm"
+                                        color="blue"
+                                        leftSection={<IconExternalLink size={16} />}
+                                        onClick={() => {
+                                          const type = file.tmdb_type || file.media_type || 'movie';
+                                          window.open(`https://www.themoviedb.org/${type}/${file.tmdb_id}`, '_blank');
+                                        }}
+                                      >
+                                        View on TMDb
+                                      </Button>
+                                    ) : file.parsed_title && (
+                                      <Button
+                                        variant="light"
+                                        size="sm"
+                                        color="blue"
+                                        leftSection={<IconExternalLink size={16} />}
+                                        onClick={() => {
+                                          const searchQuery = encodeURIComponent(
+                                            file.parsed_title + (file.parsed_year ? ` ${file.parsed_year}` : '')
+                                          );
+                                          window.open(`https://www.themoviedb.org/search?query=${searchQuery}`, '_blank');
+                                        }}
+                                      >
+                                        Search TMDb
+                                      </Button>
+                                    )}
+
+                                    {/* IMDB Link */}
+                                    {file.imdb_id && (
+                                      <Button
+                                        variant="light"
+                                        size="sm"
+                                        color="yellow"
+                                        leftSection={<IconExternalLink size={16} />}
+                                        onClick={() => {
+                                          window.open(`https://www.imdb.com/title/${file.imdb_id}/`, '_blank');
+                                        }}
+                                      >
+                                        View on IMDB
+                                      </Button>
+                                    )}
+                                  </Group>
+                                )}
                               </Stack>
                             ),
                           });
@@ -426,6 +502,7 @@ export default function Library() {
             quality={selectedFile.quality_score ?? undefined}
             resolution={selectedFile.resolution ?? undefined}
             codec={selectedFile.video_codec ?? undefined}
+            useSmartStream={true}
           />
         )}
       </Modal>

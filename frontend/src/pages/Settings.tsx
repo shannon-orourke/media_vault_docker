@@ -1,10 +1,20 @@
 import { Stack, Title, Card, Text, Group, Badge, Code } from '@mantine/core';
-import { IconDatabase, IconServer, IconCloud } from '@tabler/icons-react';
+import { IconDatabase, IconServer, IconCloud, IconFolderSearch } from '@tabler/icons-react';
+import { NASFolderBrowser } from '../components/NASFolderBrowser';
 
 export default function Settings() {
   return (
     <Stack gap="md">
       <Title order={2}>Settings</Title>
+
+      {/* NAS Folder Browser */}
+      <Card shadow="sm" padding="lg" radius="md" withBorder>
+        <Group mb="md">
+          <IconFolderSearch size={24} />
+          <Title order={4}>Browse & Scan Folders</Title>
+        </Group>
+        <NASFolderBrowser />
+      </Card>
 
       <Card shadow="sm" padding="lg" radius="md" withBorder>
         <Group mb="md">
