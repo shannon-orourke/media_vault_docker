@@ -434,11 +434,6 @@ export default function Library() {
                       {file.filename}
                     </Text>
                     {file.parsed_title && (
-                      <Text size="xs" c="dimmed" lineClamp={1} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {file.parsed_title} {file.parsed_year && `(${file.parsed_year})`}
-                      </Text>
-                    </Tooltip>
-                    {file.parsed_title && (
                       <Tooltip
                         label={`${file.parsed_title}${file.parsed_year ? ` (${file.parsed_year})` : ''}`}
                         withArrow
