@@ -26,21 +26,38 @@ echo ""
 echo -e "${GREEN}[2/5]${NC} Stopping containers..."
 docker compose down 2>/dev/null || true
 echo -e "${GREEN}✓${NC} Stopped"
+
+# Wait for containers to fully release ports
+echo -e "${BLUE}ℹ${NC} Waiting 3 seconds for containers to fully stop..."
+sleep 3
 echo ""
 
-# Step 3: Clean up port 8007
-echo -e "${GREEN}[3/5]${NC} Cleaning up port 8007..."
-if lsof -ti:8007 2>/dev/null; then
+# Step 3: Clean up port 8007 and orphaned containers
+echo -e "${GREEN}[3/5]${NC} Cleaning up port 8007 and orphaned containers..."
+
+# Always kill any processes on port 8007 (don't just check)
+PIDS=$(lsof -ti:8007 2>/dev/null || true)
+if [ -n "$PIDS" ]; then
     echo -e "${YELLOW}⚠${NC} Port 8007 is in use, killing processes..."
-    lsof -ti:8007 | xargs kill -9 2>/dev/null || true
+    echo "$PIDS" | xargs kill -9 2>/dev/null || true
     echo -e "${GREEN}✓${NC} Processes killed"
 else
     echo -e "${GREEN}✓${NC} Port 8007 is free"
 fi
 
+# Remove orphaned mediavault containers
+ORPHANED=$(docker ps -a --filter "name=mediavault" --format "{{.ID}}" 2>/dev/null || true)
+if [ -n "$ORPHANED" ]; then
+    echo -e "${YELLOW}⚠${NC} Found orphaned mediavault containers, removing..."
+    echo "$ORPHANED" | xargs -r docker rm -f 2>/dev/null || true
+    echo -e "${GREEN}✓${NC} Orphaned containers removed"
+else
+    echo -e "${GREEN}✓${NC} No orphaned containers found"
+fi
+
 # Wait for port to fully release
-echo -e "${BLUE}ℹ${NC} Waiting 2 seconds for port to fully release..."
-sleep 2
+echo -e "${BLUE}ℹ${NC} Waiting 4 seconds for port to fully release..."
+sleep 4
 echo -e "${GREEN}✓${NC} Port cleanup complete"
 echo ""
 
@@ -50,8 +67,21 @@ docker compose build
 echo -e "${GREEN}✓${NC} Built"
 echo ""
 
-# Step 5: Start
-echo -e "${GREEN}[5/5]${NC} Starting..."
+# Step 5: Final port cleanup before starting
+echo -e "${GREEN}[5/6]${NC} Final port check before starting..."
+PIDS=$(lsof -ti:8007 2>/dev/null || true)
+if [ -n "$PIDS" ]; then
+    echo -e "${YELLOW}⚠${NC} Port 8007 is in use again, killing processes..."
+    echo "$PIDS" | xargs kill -9 2>/dev/null || true
+    sleep 2
+    echo -e "${GREEN}✓${NC} Processes killed"
+else
+    echo -e "${GREEN}✓${NC} Port 8007 is still free"
+fi
+echo ""
+
+# Step 6: Start
+echo -e "${GREEN}[6/6]${NC} Starting..."
 docker compose up -d
 echo -e "${GREEN}✓${NC} Running"
 echo ""

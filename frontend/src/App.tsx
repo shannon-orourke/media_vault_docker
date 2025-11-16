@@ -39,13 +39,11 @@ function AppLayout() {
     <AppShell
       header={{ height: 50 }}
       navbar={{
-        width: opened ? 260 : 70,
-        breakpoint: 'sm',
-        collapsed: { mobile: !opened }
+        width: opened ? 260 : 0,
+        breakpoint: 0,
+        collapsed: { desktop: false, mobile: false }
       }}
       padding={0}
-      transitionDuration={300}
-      transitionTimingFunction="ease-in-out"
       styles={{
         header: {
           backgroundColor: '#1a1a1a',
@@ -55,11 +53,19 @@ function AppLayout() {
         navbar: {
           backgroundColor: '#151515',
           borderRight: '1px solid #2d2d2d',
-          overflow: 'hidden',
+          position: 'fixed',
+          top: '50px',
+          left: 0,
+          height: 'calc(100vh - 50px)',
+          width: '260px',
+          transform: opened ? 'translateX(0)' : 'translateX(-260px)',
+          transition: 'transform 300ms ease-in-out',
+          zIndex: 100,
         },
         main: {
           backgroundColor: '#0f0f0f',
-          minHeight: '100vh',
+          minHeight: 'calc(100vh - 50px)',
+          transition: 'margin-left 300ms ease-in-out',
         },
       }}
     >
@@ -109,32 +115,21 @@ function AppLayout() {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p={opened ? "md" : "xs"} style={{ paddingTop: '1rem' }}>
+      <AppShell.Navbar p="md" style={{ paddingTop: '1rem' }}>
         <Stack gap="xs">
           {navItems.map((item) => (
-            <Tooltip
+            <NavLink
               key={item.path}
+              component="button"
               label={item.label}
-              position="right"
-              disabled={opened}
-              withArrow
-              transitionProps={{ transition: 'fade', duration: 200 }}
-            >
-              <NavLink
-                component="button"
-                label={opened ? item.label : undefined}
-                leftSection={<item.icon size={20} stroke={2.0} />}
-                active={location.pathname === item.path}
-                onClick={() => navigate(item.path)}
-                style={{
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  justifyContent: opened ? 'flex-start' : 'center',
-                  paddingLeft: opened ? undefined : '0',
-                  paddingRight: opened ? undefined : '0',
-                }}
-              />
-            </Tooltip>
+              leftSection={<item.icon size={20} stroke={2.0} />}
+              active={location.pathname === item.path}
+              onClick={() => navigate(item.path)}
+              style={{
+                borderRadius: '6px',
+                fontSize: '14px',
+              }}
+            />
           ))}
         </Stack>
       </AppShell.Navbar>
