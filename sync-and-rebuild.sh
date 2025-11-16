@@ -18,7 +18,7 @@ echo -e "${BLUE}╔════════════════════�
 echo ""
 
 # Step 1: Pull latest code
-echo -e "${GREEN}[1/4]${NC} Pulling latest code from Git..."
+echo -e "${GREEN}[1/5]${NC} Pulling latest code from Git..."
 git fetch origin
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 echo -e "Current branch: ${YELLOW}${CURRENT_BRANCH}${NC}"
@@ -27,7 +27,7 @@ echo -e "${GREEN}✓${NC} Code synced successfully"
 echo ""
 
 # Step 2: Stop and remove existing containers
-echo -e "${GREEN}[2/4]${NC} Stopping existing containers..."
+echo -e "${GREEN}[2/5]${NC} Stopping existing containers..."
 if docker compose ps -q 2>/dev/null | grep -q .; then
     docker compose down
     echo -e "${GREEN}✓${NC} Containers stopped and removed"
@@ -36,14 +36,42 @@ else
 fi
 echo ""
 
-# Step 3: Rebuild images
-echo -e "${GREEN}[3/4]${NC} Rebuilding Docker images..."
+# Step 3: Clean up port 8007 and orphaned containers
+echo -e "${GREEN}[3/5]${NC} Cleaning up port 8007 and orphaned containers..."
+
+# Kill any process using port 8007
+if sudo lsof -i :8007 -t 2>/dev/null; then
+    echo -e "${YELLOW}⚠${NC} Port 8007 is in use, killing processes..."
+    sudo lsof -i :8007 -t | xargs -r sudo kill -9
+    echo -e "${GREEN}✓${NC} Processes killed"
+else
+    echo -e "${GREEN}✓${NC} Port 8007 is free"
+fi
+
+# Remove orphaned mediavault containers
+ORPHANED=$(docker ps -a --filter "name=mediavault" --format "{{.ID}}" 2>/dev/null)
+if [ -n "$ORPHANED" ]; then
+    echo -e "${YELLOW}⚠${NC} Found orphaned mediavault containers, removing..."
+    echo "$ORPHANED" | xargs -r docker rm -f
+    echo -e "${GREEN}✓${NC} Orphaned containers removed"
+else
+    echo -e "${GREEN}✓${NC} No orphaned containers found"
+fi
+
+# Wait for port to fully release
+echo -e "${BLUE}ℹ${NC} Waiting 2 seconds for port to fully release..."
+sleep 2
+echo -e "${GREEN}✓${NC} Port cleanup complete"
+echo ""
+
+# Step 4: Rebuild images
+echo -e "${GREEN}[4/5]${NC} Rebuilding Docker images..."
 docker compose build --no-cache
 echo -e "${GREEN}✓${NC} Images rebuilt successfully"
 echo ""
 
-# Step 4: Start containers
-echo -e "${GREEN}[4/4]${NC} Starting containers..."
+# Step 5: Start containers
+echo -e "${GREEN}[5/5]${NC} Starting containers..."
 docker compose up -d
 echo -e "${GREEN}✓${NC} Containers started"
 echo ""
