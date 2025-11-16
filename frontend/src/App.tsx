@@ -39,8 +39,8 @@ function AppLayout() {
     <AppShell
       header={{ height: 50 }}
       navbar={{
-        width: 260,
-        breakpoint: 0, // Disable mobile behavior
+        width: opened ? 260 : 0,
+        breakpoint: 0,
         collapsed: { desktop: false, mobile: false }
       }}
       padding={0}
@@ -57,6 +57,7 @@ function AppLayout() {
           top: '50px',
           left: 0,
           height: 'calc(100vh - 50px)',
+          width: '260px',
           transform: opened ? 'translateX(0)' : 'translateX(-260px)',
           transition: 'transform 300ms ease-in-out',
           zIndex: 100,
@@ -64,7 +65,6 @@ function AppLayout() {
         main: {
           backgroundColor: '#0f0f0f',
           minHeight: 'calc(100vh - 50px)',
-          marginLeft: opened ? '260px' : '0',
           transition: 'margin-left 300ms ease-in-out',
         },
       }}
