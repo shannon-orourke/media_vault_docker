@@ -1,0 +1,139 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mediavault-backend
+    ports:
+      - "8007:8000"
+    environment:
+      # Database - connects to shared PostgreSQL container
+      - DATABASE_URL=${DATABASE_URL}
+      - DB_POOL_SIZE=${DB_POOL_SIZE:-10}
+      - DB_MAX_OVERFLOW=${DB_MAX_OVERFLOW:-20}
+
+      # Security
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${JWT_ACCESS_TOKEN_EXPIRE_MINUTES:-1440}
+      - ALLOW_REGISTRATION=${ALLOW_REGISTRATION:-false}
+
+      # NAS Configuration
+      - NAS_HOST=${NAS_HOST}
+      - NAS_SMB_USERNAME=${NAS_SMB_USERNAME}
+      - NAS_SMB_PASSWORD=${NAS_SMB_PASSWORD}
+      - NAS_SMB_SHARE=${NAS_SMB_SHARE}
+      - NAS_MOUNT_PATH=${NAS_MOUNT_PATH:-/mnt/nas-media}
+      - NAS_SCAN_PATHS=${NAS_SCAN_PATHS}
+      - NAS_TEMP_DELETE_PATH=${NAS_TEMP_DELETE_PATH}
+
+      # TMDb API
+      - TMDB_API_KEY=${TMDB_API_KEY}
+      - TMDB_READ_ACCESS_TOKEN=${TMDB_READ_ACCESS_TOKEN}
+      - TMDB_BASE_URL=${TMDB_BASE_URL:-https://api.themoviedb.org/3/}
+      - TMDB_RATE_LIMIT=${TMDB_RATE_LIMIT:-40}
+
+      # Azure OpenAI
+      - AZURE_OPENAI_KEY=${AZURE_OPENAI_KEY}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION:-2024-08-01-preview}
+      - AZURE_DEPLOYMENT_NAME_CHAT=${AZURE_DEPLOYMENT_NAME_CHAT:-gpt-4o}
+      - AZURE_DEPLOYMENT_NAME_CHAT_MINI=${AZURE_DEPLOYMENT_NAME_CHAT_MINI:-gpt-4o-mini}
+
+      # Application
+      - APP_NAME=${APP_NAME:-MediaVault}
+      - APP_VERSION=${APP_VERSION:-0.1.0}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - BACKEND_HOST=${BACKEND_HOST:-0.0.0.0}
+      - BACKEND_PORT=${BACKEND_PORT:-8000}
+      - CORS_ORIGINS=${CORS_ORIGINS}
+
+      # FFmpeg/MediaInfo
+      - FFMPEG_PATH=${FFMPEG_PATH:-/usr/bin/ffmpeg}
+      - FFPROBE_PATH=${FFPROBE_PATH:-/usr/bin/ffprobe}
+      - MEDIAINFO_PATH=${MEDIAINFO_PATH:-/usr/bin/mediainfo}
+      - MD5_CHUNK_SIZE=${MD5_CHUNK_SIZE:-8192}
+
+      # Duplicate Detection
+      - FUZZY_MATCH_THRESHOLD=${FUZZY_MATCH_THRESHOLD:-85}
+      - QUALITY_AUTO_APPROVE_THRESHOLD=${QUALITY_AUTO_APPROVE_THRESHOLD:-50}
+      - QUALITY_MANUAL_REVIEW_THRESHOLD=${QUALITY_MANUAL_REVIEW_THRESHOLD:-20}
+      - MAX_DUPLICATES_PER_BATCH=${MAX_DUPLICATES_PER_BATCH:-100}
+
+      # Deletion Policy
+      - AUTO_DELETE_ENABLED=${AUTO_DELETE_ENABLED:-false}
+      - PENDING_DELETION_RETENTION_DAYS=${PENDING_DELETION_RETENTION_DAYS:-30}
+      - TEMP_DELETE_SUBDIRS=${TEMP_DELETE_SUBDIRS:-movies,tv,documentaries}
+
+      # Language Detection
+      - TRUST_FOREIGN_FILM_HEURISTIC=${TRUST_FOREIGN_FILM_HEURISTIC:-true}
+      - REQUIRE_ENGLISH_AUDIO=${REQUIRE_ENGLISH_AUDIO:-true}
+
+      # Scanning
+      - DEFAULT_SCAN_TYPE=${DEFAULT_SCAN_TYPE:-full}
+      - SCAN_MAX_WORKERS=${SCAN_MAX_WORKERS:-5}
+      - SCAN_TIMEOUT=${SCAN_TIMEOUT:-3600}
+      - VIDEO_EXTENSIONS=${VIDEO_EXTENSIONS:-.mkv,.mp4,.avi,.m4v,.mov,.wmv,.flv,.webm,.mpg,.mpeg,.ts}
+
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_FILE=${LOG_FILE:-/var/log/mediavault/mediavault.log}
+      - LOG_MAX_BYTES=${LOG_MAX_BYTES:-10485760}
+      - LOG_BACKUP_COUNT=${LOG_BACKUP_COUNT:-5}
+
+      # Langfuse/TraceForge (Optional)
+      - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY:-}
+      - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY:-}
+      - LANGFUSE_HOST=${LANGFUSE_HOST:-}
+      - LANGFUSE_PROJECT_ID=${LANGFUSE_PROJECT_ID:-}
+      - DEV_MEDIA_FALLBACK_PATH=${DEV_MEDIA_FALLBACK_PATH:-}
+
+    volumes:
+      # Application logs
+      - ./backend/logs:/var/log/mediavault
+      # NAS mount point (optional - can be mounted inside container or on host)
+      # - nas-media:/mnt/nas-media
+
+    # GPU support for CUDA acceleration
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    # Connect to shared postgres network (if using external postgres)
+    networks:
+      - mediavault-net
+
+    restart: unless-stopped
+
+    # Privileged mode needed for CIFS mounting
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - DAC_READ_SEARCH
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: mediavault-frontend
+    ports:
+      - "3007:3000"
+    depends_on:
+      - backend
+    networks:
+      - mediavault-net
+    restart: unless-stopped
+
+networks:
+  mediavault-net:
+    driver: bridge
+
+# Optional: Named volume for NAS mount if not mounting on host
+# volumes:
+#   nas-media:
