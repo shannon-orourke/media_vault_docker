@@ -465,23 +465,26 @@ export default function Library() {
                     </Group>
                   </Table.Td>
                   <Table.Td>
-                    <Group gap="xs">
+                    <Group gap={4} wrap="nowrap">
                       <ActionIcon
                         variant="subtle"
                         color="blue"
+                        size="sm"
                         onClick={() => handlePlay(file)}
                       >
-                        <IconPlayerPlay size={18} />
+                        <IconPlayerPlay size={16} />
                       </ActionIcon>
                       <ActionIcon
                         variant="subtle"
                         color="blue"
+                        size="sm"
                         onClick={() => handleRename(file)}
                       >
-                        <IconEdit size={18} />
+                        <IconEdit size={16} />
                       </ActionIcon>
                       <ActionIcon
                         variant="subtle"
+                        size="sm"
                         onClick={() => {
                           modals.open({
                             title: 'File Details',
@@ -573,10 +576,10 @@ export default function Library() {
                           });
                         }}
                       >
-                        <IconInfoCircle size={18} />
+                        <IconInfoCircle size={16} />
                       </ActionIcon>
-                      <ActionIcon variant="subtle" color="red" onClick={() => handleDelete(file)}>
-                        <IconTrash size={18} />
+                      <ActionIcon variant="subtle" color="red" size="sm" onClick={() => handleDelete(file)}>
+                        <IconTrash size={16} />
                       </ActionIcon>
                     </Group>
                   </Table.Td>
