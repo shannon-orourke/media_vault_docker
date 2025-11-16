@@ -39,9 +39,9 @@ function AppLayout() {
     <AppShell
       header={{ height: 50 }}
       navbar={{
-        width: 260,
+        width: opened ? 260 : 70,
         breakpoint: 'sm',
-        collapsed: { mobile: !opened, desktop: !opened }
+        collapsed: { mobile: !opened }
       }}
       padding={0}
       transitionDuration={300}
@@ -55,6 +55,7 @@ function AppLayout() {
         navbar: {
           backgroundColor: '#151515',
           borderRight: '1px solid #2d2d2d',
+          overflow: 'hidden',
         },
         main: {
           backgroundColor: '#0f0f0f',
@@ -108,21 +109,32 @@ function AppLayout() {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md" style={{ paddingTop: '1rem' }}>
+      <AppShell.Navbar p={opened ? "md" : "xs"} style={{ paddingTop: '1rem' }}>
         <Stack gap="xs">
           {navItems.map((item) => (
-            <NavLink
+            <Tooltip
               key={item.path}
-              component="button"
               label={item.label}
-              leftSection={<item.icon size={20} stroke={2.0} />}
-              active={location.pathname === item.path}
-              onClick={() => navigate(item.path)}
-              style={{
-                borderRadius: '6px',
-                fontSize: '14px',
-              }}
-            />
+              position="right"
+              disabled={opened}
+              withArrow
+              transitionProps={{ transition: 'fade', duration: 200 }}
+            >
+              <NavLink
+                component="button"
+                label={opened ? item.label : undefined}
+                leftSection={<item.icon size={20} stroke={2.0} />}
+                active={location.pathname === item.path}
+                onClick={() => navigate(item.path)}
+                style={{
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  justifyContent: opened ? 'flex-start' : 'center',
+                  paddingLeft: opened ? undefined : '0',
+                  paddingRight: opened ? undefined : '0',
+                }}
+              />
+            </Tooltip>
           ))}
         </Stack>
       </AppShell.Navbar>
