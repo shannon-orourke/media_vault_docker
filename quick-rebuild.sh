@@ -23,24 +23,48 @@ echo -e "${GREEN}✓${NC} Synced"
 echo ""
 
 # Step 2: Stop containers
-echo -e "${GREEN}[2/4]${NC} Stopping containers..."
+echo -e "${GREEN}[2/5]${NC} Stopping containers..."
 docker compose down 2>/dev/null || true
 echo -e "${GREEN}✓${NC} Stopped"
 echo ""
 
-# Step 3: Rebuild (with cache)
-echo -e "${GREEN}[3/4]${NC} Rebuilding (using cache)..."
+# Step 3: Clean up port 8007
+echo -e "${GREEN}[3/5]${NC} Cleaning up port 8007..."
+if lsof -ti:8007 2>/dev/null; then
+    echo -e "${YELLOW}⚠${NC} Port 8007 is in use, killing processes..."
+    lsof -ti:8007 | xargs kill -9 2>/dev/null || true
+    echo -e "${GREEN}✓${NC} Processes killed"
+else
+    echo -e "${GREEN}✓${NC} Port 8007 is free"
+fi
+
+# Wait for port to fully release
+echo -e "${BLUE}ℹ${NC} Waiting 2 seconds for port to fully release..."
+sleep 2
+echo -e "${GREEN}✓${NC} Port cleanup complete"
+echo ""
+
+# Step 4: Rebuild (with cache)
+echo -e "${GREEN}[4/5]${NC} Rebuilding (using cache)..."
 docker compose build
 echo -e "${GREEN}✓${NC} Built"
 echo ""
 
-# Step 4: Start
-echo -e "${GREEN}[4/4]${NC} Starting..."
+# Step 5: Start
+echo -e "${GREEN}[5/5]${NC} Starting..."
 docker compose up -d
 echo -e "${GREEN}✓${NC} Running"
 echo ""
 
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${GREEN}✓ Ready!${NC}"
-echo -e "${YELLOW}Frontend:${NC} http://localhost:3007"
-echo -e "${YELLOW}Backend:${NC}  http://localhost:8007"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+echo -e "🚀 Docker is up and running!"
+echo ""
+echo -e "Available Services:"
+echo -e "  Frontend:  http://localhost:3007"
+echo -e "  Backend:   http://localhost:8007"
+echo -e "  API Docs:  http://localhost:8007/docs"
 echo ""

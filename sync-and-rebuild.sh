@@ -39,10 +39,10 @@ echo ""
 # Step 3: Clean up port 8007 and orphaned containers
 echo -e "${GREEN}[3/5]${NC} Cleaning up port 8007 and orphaned containers..."
 
-# Kill any process using port 8007
-if sudo lsof -i :8007 -t 2>/dev/null; then
+# Kill any process using port 8007 (try without sudo first, fallback to sudo)
+if lsof -ti:8007 2>/dev/null; then
     echo -e "${YELLOW}⚠${NC} Port 8007 is in use, killing processes..."
-    sudo lsof -i :8007 -t | xargs -r sudo kill -9
+    lsof -ti:8007 | xargs kill -9 2>/dev/null || sudo lsof -ti:8007 | xargs sudo kill -9 2>/dev/null || true
     echo -e "${GREEN}✓${NC} Processes killed"
 else
     echo -e "${GREEN}✓${NC} Port 8007 is free"
