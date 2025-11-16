@@ -1,0 +1,200 @@
+/* Import Inter font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Global Portainer-style overrides */
+:root {
+  --portainer-bg-primary: #0f0f0f;
+  --portainer-bg-secondary: #1a1a1a;
+  --portainer-bg-tertiary: #151515;
+  --portainer-border: #2d2d2d;
+  --portainer-text-primary: #ffffff;
+  --portainer-text-secondary: #a0a0a0;
+  --portainer-text-muted: #6b6b6b;
+  --portainer-blue: #1e5ee6;
+  --portainer-blue-hover: #1349b8;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--portainer-bg-primary);
+  color: var(--portainer-text-primary);
+}
+
+/* Scrollbar styling for Portainer-like appearance */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--portainer-bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3a3a3a;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4a4a4a;
+}
+
+/* Mantine component overrides for Portainer style */
+.mantine-Card-root {
+  background-color: var(--portainer-bg-secondary) !important;
+  border: 1px solid var(--portainer-border) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.mantine-Paper-root {
+  background-color: var(--portainer-bg-secondary) !important;
+  border: 1px solid var(--portainer-border) !important;
+}
+
+.mantine-Table-root {
+  background-color: var(--portainer-bg-secondary) !important;
+}
+
+.mantine-Table-thead {
+  background-color: var(--portainer-bg-tertiary) !important;
+  border-bottom: 2px solid var(--portainer-border) !important;
+}
+
+.mantine-Table-tr {
+  border-bottom: 1px solid var(--portainer-border) !important;
+}
+
+.mantine-Table-tr:hover {
+  background-color: #1f1f1f !important;
+}
+
+.mantine-Table-th {
+  color: var(--portainer-text-secondary) !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 12px 16px !important;
+}
+
+.mantine-Table-td {
+  color: var(--portainer-text-primary) !important;
+  padding: 12px 16px !important;
+}
+
+.mantine-Button-root {
+  font-weight: 500 !important;
+  transition: all 150ms ease-in-out !important;
+}
+
+.mantine-Button-root[data-variant="filled"] {
+  background-color: var(--portainer-blue) !important;
+}
+
+.mantine-Button-root[data-variant="filled"]:hover {
+  background-color: var(--portainer-blue-hover) !important;
+}
+
+.mantine-Text-root {
+  color: var(--portainer-text-primary);
+}
+
+.mantine-Title-root {
+  color: var(--portainer-text-primary);
+}
+
+/* Input styling */
+.mantine-Input-input {
+  background-color: var(--portainer-bg-tertiary) !important;
+  border-color: var(--portainer-border) !important;
+  color: var(--portainer-text-primary) !important;
+}
+
+.mantine-Input-input:focus {
+  border-color: var(--portainer-blue) !important;
+}
+
+.mantine-Select-dropdown,
+.mantine-Menu-dropdown {
+  background-color: var(--portainer-bg-secondary) !important;
+  border: 1px solid var(--portainer-border) !important;
+}
+
+.mantine-Select-option,
+.mantine-Menu-item {
+  color: var(--portainer-text-primary) !important;
+}
+
+.mantine-Select-option:hover,
+.mantine-Menu-item:hover {
+  background-color: #1f1f1f !important;
+}
+
+/* Badge styling */
+.mantine-Badge-root {
+  font-weight: 500;
+  text-transform: none;
+}
+
+/* Modal styling */
+.mantine-Modal-content {
+  background-color: var(--portainer-bg-secondary) !important;
+  border: 1px solid var(--portainer-border) !important;
+}
+
+.mantine-Modal-header {
+  background-color: var(--portainer-bg-secondary) !important;
+  border-bottom: 1px solid var(--portainer-border) !important;
+}
+
+/* Notification styling */
+.mantine-Notification-root {
+  background-color: var(--portainer-bg-secondary) !important;
+  border: 1px solid var(--portainer-border) !important;
+}
+
+/* Tabs styling */
+.mantine-Tabs-tab {
+  color: var(--portainer-text-secondary) !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.mantine-Tabs-tab[data-active] {
+  color: var(--portainer-blue) !important;
+  border-bottom-color: var(--portainer-blue) !important;
+}
+
+.mantine-Tabs-tab:hover {
+  background-color: transparent !important;
+  border-bottom-color: var(--portainer-text-muted) !important;
+}
+
+/* Loading overlay */
+.mantine-LoadingOverlay-root {
+  background-color: rgba(15, 15, 15, 0.8) !important;
+}
+
+/* Accordion styling */
+.mantine-Accordion-item {
+  background-color: var(--portainer-bg-secondary) !important;
+  border: 1px solid var(--portainer-border) !important;
+}
+
+.mantine-Accordion-control {
+  color: var(--portainer-text-primary) !important;
+}
+
+.mantine-Accordion-control:hover {
+  background-color: #1f1f1f !important;
+}

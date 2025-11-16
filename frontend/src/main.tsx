@@ -4,13 +4,15 @@ import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import App from './App';
+import { theme } from './theme';
 
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
+import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <MantineProvider defaultColorScheme="dark">
+    <MantineProvider theme={theme} defaultColorScheme="dark">
       <Notifications />
       <ModalsProvider>
         <App />
