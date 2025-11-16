@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Grid, Card, Text, Title, Group, Stack, Badge, RingProgress, Table } from '@mantine/core';
+import { Grid, Card, Text, Title, Group, Stack, Badge, RingProgress, Table, ThemeIcon, Skeleton } from '@mantine/core';
 import { IconVideo, IconCopy, IconFileAlert, IconScan } from '@tabler/icons-react';
 import { mediaApi, type ScanHistory } from '../services/api';
 import { notifications } from '@mantine/notifications';
@@ -74,65 +74,98 @@ export default function Dashboard() {
 
   return (
     <Stack gap="md">
-      <Title order={2}>Dashboard</Title>
+      <Title order={1} style={{ fontWeight: 700, fontSize: '32px', letterSpacing: '-0.03em' }}>Dashboard</Title>
 
       <Grid>
         <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
           <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Group justify="space-between" mb="xs">
-              <Text size="sm" c="dimmed">Total Files</Text>
-              <IconVideo size={24} />
+            <Group justify="space-between" mb="md">
+              <Text size="sm" c="dimmed" fw={600} tt="uppercase" style={{ letterSpacing: '0.05em' }}>Total Files</Text>
+              <ThemeIcon size={48} radius="md" variant="light" color="blue">
+                <IconVideo size={28} stroke={2} />
+              </ThemeIcon>
             </Group>
-            <Title order={2}>{loading ? '...' : stats.totalFiles}</Title>
+            {loading ? (
+              <Skeleton height={40} mb="xs" />
+            ) : (
+              <Title order={1} c="portainerBlue.6" style={{ fontSize: '36px', fontWeight: 700 }}>{stats.totalFiles}</Title>
+            )}
             <Text size="sm" c="dimmed" mt="xs">{stats.totalSize}</Text>
           </Card>
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
           <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Group justify="space-between" mb="xs">
-              <Text size="sm" c="dimmed">Duplicate Groups</Text>
-              <IconCopy size={24} />
+            <Group justify="space-between" mb="md">
+              <Text size="sm" c="dimmed" fw={600} tt="uppercase" style={{ letterSpacing: '0.05em' }}>Duplicate Groups</Text>
+              <ThemeIcon size={48} radius="md" variant="light" color="warningAmber.6">
+                <IconCopy size={28} stroke={2} />
+              </ThemeIcon>
             </Group>
-            <Title order={2}>{loading ? '...' : stats.duplicateGroups}</Title>
+            {loading ? (
+              <Skeleton height={40} mb="xs" />
+            ) : (
+              <Title order={1} c="warningAmber.6" style={{ fontSize: '36px', fontWeight: 700 }}>{stats.duplicateGroups}</Title>
+            )}
             <Text size="sm" c="dimmed" mt="xs">Needs review</Text>
           </Card>
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
           <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Group justify="space-between" mb="xs">
-              <Text size="sm" c="dimmed">Last Scan</Text>
-              <IconScan size={24} />
+            <Group justify="space-between" mb="md">
+              <Text size="sm" c="dimmed" fw={600} tt="uppercase" style={{ letterSpacing: '0.05em' }}>Last Scan</Text>
+              <ThemeIcon size={48} radius="md" variant="light" color="cyan">
+                <IconScan size={28} stroke={2} />
+              </ThemeIcon>
             </Group>
-            <Text size="sm" mt="md">
-              {loading ? '...' : stats.lastScan ? formatDate(stats.lastScan) : 'Never'}
-            </Text>
+            {loading ? (
+              <Skeleton height={40} mb="xs" />
+            ) : (
+              <Text size="md" fw={600} mt="sm">
+                {stats.lastScan ? formatDate(stats.lastScan) : 'Never'}
+              </Text>
+            )}
           </Card>
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
           <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Group justify="space-between" mb="xs">
-              <Text size="sm" c="dimmed">Storage Health</Text>
-              <IconFileAlert size={24} />
+            <Group justify="space-between" mb="md">
+              <Text size="sm" c="dimmed" fw={600} tt="uppercase" style={{ letterSpacing: '0.05em' }}>Storage Health</Text>
+              <ThemeIcon size={48} radius="md" variant="light" color="successGreen.6">
+                <IconFileAlert size={28} stroke={2} />
+              </ThemeIcon>
             </Group>
-            <Group mt="md">
-              <RingProgress
-                size={60}
-                thickness={6}
-                sections={[{ value: 75, color: 'blue' }]}
-              />
-              <Text size="sm" c="dimmed">75% organized</Text>
-            </Group>
+            {loading ? (
+              <Skeleton height={60} />
+            ) : (
+              <Group mt="sm">
+                <RingProgress
+                  size={70}
+                  thickness={8}
+                  sections={[{ value: 75, color: 'successGreen.6' }]}
+                  label={
+                    <Text c="successGreen.6" fw={700} ta="center" size="lg">
+                      75%
+                    </Text>
+                  }
+                />
+                <Text size="sm" c="dimmed" fw={500}>organized</Text>
+              </Group>
+            )}
           </Card>
         </Grid.Col>
       </Grid>
 
       <Card shadow="sm" padding="lg" radius="md" withBorder>
-        <Title order={4} mb="md">Recent Scans</Title>
+        <Title order={3} mb="md" style={{ fontWeight: 600, fontSize: '20px' }}>Recent Scans</Title>
         {loading ? (
-          <Text c="dimmed">Loading...</Text>
+          <Stack gap="sm">
+            <Skeleton height={40} />
+            <Skeleton height={40} />
+            <Skeleton height={40} />
+          </Stack>
         ) : recentScans.length === 0 ? (
           <Text c="dimmed">No scans yet. Start a scan from the Scanner page.</Text>
         ) : (
