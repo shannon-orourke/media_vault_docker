@@ -67,8 +67,21 @@ docker compose build
 echo -e "${GREEN}✓${NC} Built"
 echo ""
 
-# Step 5: Start
-echo -e "${GREEN}[5/5]${NC} Starting..."
+# Step 5: Final port cleanup before starting
+echo -e "${GREEN}[5/6]${NC} Final port check before starting..."
+PIDS=$(lsof -ti:8007 2>/dev/null || true)
+if [ -n "$PIDS" ]; then
+    echo -e "${YELLOW}⚠${NC} Port 8007 is in use again, killing processes..."
+    echo "$PIDS" | xargs kill -9 2>/dev/null || true
+    sleep 2
+    echo -e "${GREEN}✓${NC} Processes killed"
+else
+    echo -e "${GREEN}✓${NC} Port 8007 is still free"
+fi
+echo ""
+
+# Step 6: Start
+echo -e "${GREEN}[6/6]${NC} Starting..."
 docker compose up -d
 echo -e "${GREEN}✓${NC} Running"
 echo ""
