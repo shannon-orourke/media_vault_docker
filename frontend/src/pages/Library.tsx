@@ -13,6 +13,7 @@ import {
   Checkbox,
   Button,
   Paper,
+  Tooltip,
 } from '@mantine/core';
 import { IconSearch, IconTrash, IconInfoCircle, IconPlayerPlay, IconEdit, IconExternalLink, IconChevronUp, IconChevronDown } from '@tabler/icons-react';
 import { mediaApi, type MediaFile } from '../services/api';
@@ -429,13 +430,21 @@ export default function Library() {
                     />
                   </Table.Td>
                   <Table.Td style={{ overflow: 'hidden' }}>
-                    <Text size="sm" lineClamp={1} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {file.filename}
-                    </Text>
-                    {file.parsed_title && (
-                      <Text size="xs" c="dimmed" lineClamp={1} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {file.parsed_title} {file.parsed_year && `(${file.parsed_year})`}
+                    <Tooltip label={file.filename} withArrow position="top-start" multiline maw={400}>
+                      <Text size="sm" lineClamp={1} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'help' }}>
+                        {file.filename}
                       </Text>
+                    </Tooltip>
+                    {file.parsed_title && (
+                      <Tooltip
+                        label={`${file.parsed_title}${file.parsed_year ? ` (${file.parsed_year})` : ''}`}
+                        withArrow
+                        position="bottom-start"
+                      >
+                        <Text size="xs" c="dimmed" lineClamp={1} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'help' }}>
+                          {file.parsed_title} {file.parsed_year && `(${file.parsed_year})`}
+                        </Text>
+                      </Tooltip>
                     )}
                   </Table.Td>
                   <Table.Td>
@@ -464,8 +473,8 @@ export default function Library() {
                       ))}
                     </Group>
                   </Table.Td>
-                  <Table.Td>
-                    <Group gap={4} wrap="nowrap">
+                  <Table.Td style={{ overflow: 'visible' }}>
+                    <Group gap={4} wrap="nowrap" style={{ justifyContent: 'flex-start' }}>
                       <ActionIcon
                         variant="subtle"
                         color="blue"
