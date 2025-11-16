@@ -397,10 +397,10 @@ export default function Library() {
         <Text c="dimmed">No files found. Run a scan to populate the library.</Text>
       ) : (
         <>
-          <Table striped highlightOnHover style={{ tableLayout: 'fixed' }}>
+          <Table striped highlightOnHover style={{ tableLayout: 'fixed', width: '100%' }}>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th style={{ width: '50px' }}>
+                <Table.Th style={{ width: '3%' }}>
                   <Checkbox
                     checked={allPageFilesSelected}
                     indeterminate={somePageFilesSelected}
@@ -408,14 +408,14 @@ export default function Library() {
                     aria-label="Select all files on this page"
                   />
                 </Table.Th>
-                <SortableHeader column="filename" width="minmax(300px, 1fr)">Name</SortableHeader>
-                <SortableHeader column="resolution" width="120px">Resolution</SortableHeader>
-                <SortableHeader column="codec" width="100px">Codec</SortableHeader>
-                <SortableHeader column="quality_score" width="90px">Quality</SortableHeader>
-                <SortableHeader column="duration" width="100px">Duration</SortableHeader>
-                <SortableHeader column="file_size" width="100px">Size</SortableHeader>
-                <SortableHeader column="languages" width="140px">Languages</SortableHeader>
-                <Table.Th style={{ width: '160px' }}>Actions</Table.Th>
+                <SortableHeader column="filename" width="30%">Name</SortableHeader>
+                <SortableHeader column="resolution" width="10%">Resolution</SortableHeader>
+                <SortableHeader column="codec" width="10%">Codec</SortableHeader>
+                <SortableHeader column="quality_score" width="8%">Quality</SortableHeader>
+                <SortableHeader column="duration" width="10%">Duration</SortableHeader>
+                <SortableHeader column="file_size" width="10%">Size</SortableHeader>
+                <SortableHeader column="languages" width="12%">Languages</SortableHeader>
+                <Table.Th style={{ width: '7%' }}>Actions</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
