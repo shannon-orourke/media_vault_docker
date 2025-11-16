@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { AppShell, Group, Title, NavLink, Container, ActionIcon, Tooltip } from '@mantine/core';
+import { AppShell, Group, Title, NavLink, ActionIcon, Tooltip, Box, Stack } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
   IconHome,
@@ -37,19 +37,34 @@ function AppLayout() {
 
   return (
     <AppShell
-      header={{ height: 60 }}
+      header={{ height: 50 }}
       navbar={{
-        width: 250,
+        width: 260,
         breakpoint: 'sm',
         collapsed: { mobile: !opened, desktop: !opened }
       }}
-      padding="md"
+      padding={0}
       transitionDuration={300}
       transitionTimingFunction="ease-in-out"
+      styles={{
+        header: {
+          backgroundColor: '#1a1a1a',
+          borderBottom: '1px solid #2d2d2d',
+          padding: 0,
+        },
+        navbar: {
+          backgroundColor: '#151515',
+          borderRight: '1px solid #2d2d2d',
+        },
+        main: {
+          backgroundColor: '#0f0f0f',
+          minHeight: '100vh',
+        },
+      }}
     >
       <AppShell.Header>
-        <Group h="100%" px="md" justify="space-between">
-          <Group gap="md">
+        <Group h="100%" px="lg" justify="space-between">
+          <Group gap="sm">
             <Tooltip
               label={opened ? 'Hide sidebar' : 'Show sidebar'}
               position="right"
@@ -59,40 +74,61 @@ function AppLayout() {
               <ActionIcon
                 onClick={toggle}
                 variant="subtle"
-                size="lg"
+                size="md"
                 color="gray"
                 style={{
                   transition: 'all 200ms ease-in-out',
+                  color: '#a0a0a0',
                 }}
               >
                 {opened ? (
-                  <IconLayoutSidebarLeftCollapse size={22} stroke={1.5} />
+                  <IconLayoutSidebarLeftCollapse size={20} stroke={1.5} />
                 ) : (
-                  <IconLayoutSidebarLeftExpand size={22} stroke={1.5} />
+                  <IconLayoutSidebarLeftExpand size={20} stroke={1.5} />
                 )}
               </ActionIcon>
             </Tooltip>
-            <Title order={3} style={{ fontWeight: 500 }}>MediaVault</Title>
+            <Box style={{
+              width: 2,
+              height: 24,
+              backgroundColor: '#2d2d2d',
+              borderRadius: 2,
+            }} />
+            <Title
+              order={4}
+              style={{
+                fontWeight: 600,
+                color: '#ffffff',
+                letterSpacing: '-0.02em',
+              }}
+            >
+              MediaVault
+            </Title>
           </Group>
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.path}
-            component="button"
-            label={item.label}
-            leftSection={<item.icon size={20} />}
-            active={location.pathname === item.path}
-            onClick={() => navigate(item.path)}
-            mb="xs"
-          />
-        ))}
+      <AppShell.Navbar p="md" style={{ paddingTop: '1rem' }}>
+        <Stack gap="xs">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.path}
+              component="button"
+              label={item.label}
+              leftSection={<item.icon size={18} stroke={1.8} />}
+              active={location.pathname === item.path}
+              onClick={() => navigate(item.path)}
+              style={{
+                borderRadius: '6px',
+                fontSize: '14px',
+              }}
+            />
+          ))}
+        </Stack>
       </AppShell.Navbar>
 
-      <AppShell.Main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <Container size="xl" style={{ flex: 1, width: '100%' }}>
+      <AppShell.Main>
+        <Box style={{ padding: '24px', minHeight: 'calc(100vh - 50px)' }}>
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
@@ -103,7 +139,7 @@ function AppLayout() {
             <Route path="/scanner" element={<Scanner />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
-        </Container>
+        </Box>
       </AppShell.Main>
     </AppShell>
   );
