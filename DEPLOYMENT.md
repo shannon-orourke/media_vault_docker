@@ -78,14 +78,14 @@ cd /path/to/media_vault_docker
 
 ```bash
 # Follow all logs
-docker-compose logs -f
+docker compose logs -f
 
 # Follow specific service
-docker-compose logs -f frontend
-docker-compose logs -f backend
+docker compose logs -f frontend
+docker compose logs -f backend
 
 # View recent logs
-docker-compose logs --tail=100
+docker compose logs --tail=100
 ```
 
 ### Troubleshooting
@@ -93,13 +93,13 @@ docker-compose logs --tail=100
 #### Containers won't start
 ```bash
 # Check status
-docker-compose ps
+docker compose ps
 
 # View logs
-docker-compose logs
+docker compose logs
 
 # Full cleanup and rebuild
-docker-compose down -v  # WARNING: Removes volumes
+docker compose down -v  # WARNING: Removes volumes
 ./sync-and-rebuild.sh
 ```
 
@@ -110,7 +110,7 @@ sudo lsof -i :3007
 sudo lsof -i :8007
 
 # Stop containers
-docker-compose down
+docker compose down
 ```
 
 #### Out of disk space
@@ -167,31 +167,31 @@ git pull origin main
 # Comment out the git pull line in the script
 
 # Keep containers running (no rebuild)
-docker-compose up -d
+docker compose up -d
 
 # Rebuild only one service
-docker-compose build frontend
-docker-compose up -d frontend
+docker compose build frontend
+docker compose up -d frontend
 ```
 
 ### Common Commands
 
 ```bash
 # Stop containers
-docker-compose down
+docker compose down
 
 # Start containers (without rebuild)
-docker-compose up -d
+docker compose up -d
 
 # Restart a service
-docker-compose restart frontend
+docker compose restart frontend
 
 # Check status
-docker-compose ps
+docker compose ps
 
 # Shell into container
-docker-compose exec backend bash
-docker-compose exec frontend sh
+docker compose exec backend bash
+docker compose exec frontend sh
 ```
 
 ### Port Reference
