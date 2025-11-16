@@ -24,19 +24,19 @@ echo ""
 
 # Step 2: Stop containers
 echo -e "${GREEN}[2/4]${NC} Stopping containers..."
-docker-compose down 2>/dev/null || true
+docker compose down 2>/dev/null || true
 echo -e "${GREEN}✓${NC} Stopped"
 echo ""
 
 # Step 3: Rebuild (with cache)
 echo -e "${GREEN}[3/4]${NC} Rebuilding (using cache)..."
-docker-compose build
+docker compose build
 echo -e "${GREEN}✓${NC} Built"
 echo ""
 
 # Step 4: Start
 echo -e "${GREEN}[4/4]${NC} Starting..."
-docker-compose up -d
+docker compose up -d
 echo -e "${GREEN}✓${NC} Running"
 echo ""
 

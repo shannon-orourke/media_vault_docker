@@ -28,8 +28,8 @@ echo ""
 
 # Step 2: Stop and remove existing containers
 echo -e "${GREEN}[2/4]${NC} Stopping existing containers..."
-if docker-compose ps -q 2>/dev/null | grep -q .; then
-    docker-compose down
+if docker compose ps -q 2>/dev/null | grep -q .; then
+    docker compose down
     echo -e "${GREEN}✓${NC} Containers stopped and removed"
 else
     echo -e "${YELLOW}ℹ${NC} No running containers found"
@@ -38,13 +38,13 @@ echo ""
 
 # Step 3: Rebuild images
 echo -e "${GREEN}[3/4]${NC} Rebuilding Docker images..."
-docker-compose build --no-cache
+docker compose build --no-cache
 echo -e "${GREEN}✓${NC} Images rebuilt successfully"
 echo ""
 
 # Step 4: Start containers
 echo -e "${GREEN}[4/4]${NC} Starting containers..."
-docker-compose up -d
+docker compose up -d
 echo -e "${GREEN}✓${NC} Containers started"
 echo ""
 
@@ -54,11 +54,11 @@ echo -e "${GREEN}✓ Deployment Complete!${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 echo -e "Container Status:"
-docker-compose ps
+docker compose ps
 echo ""
 echo -e "${YELLOW}Frontend:${NC} http://localhost:3007"
 echo -e "${YELLOW}Backend:${NC}  http://localhost:8007"
 echo -e "${YELLOW}API Docs:${NC} http://localhost:8007/docs"
 echo ""
-echo -e "To view logs: ${BLUE}docker-compose logs -f${NC}"
+echo -e "To view logs: ${BLUE}docker compose logs -f${NC}"
 echo ""
