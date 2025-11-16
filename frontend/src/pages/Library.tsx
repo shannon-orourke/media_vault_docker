@@ -398,10 +398,10 @@ export default function Library() {
         <Text c="dimmed">No files found. Run a scan to populate the library.</Text>
       ) : (
         <>
-          <Table striped highlightOnHover style={{ tableLayout: 'fixed' }}>
+          <Table striped highlightOnHover style={{ tableLayout: 'fixed', width: '100%' }}>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th style={{ width: '50px' }}>
+                <Table.Th style={{ width: '3%' }}>
                   <Checkbox
                     checked={allPageFilesSelected}
                     indeterminate={somePageFilesSelected}
@@ -409,14 +409,14 @@ export default function Library() {
                     aria-label="Select all files on this page"
                   />
                 </Table.Th>
-                <SortableHeader column="filename" width="minmax(300px, 1fr)">Name</SortableHeader>
-                <SortableHeader column="resolution" width="120px">Resolution</SortableHeader>
-                <SortableHeader column="codec" width="100px">Codec</SortableHeader>
-                <SortableHeader column="quality_score" width="90px">Quality</SortableHeader>
-                <SortableHeader column="duration" width="100px">Duration</SortableHeader>
-                <SortableHeader column="file_size" width="100px">Size</SortableHeader>
-                <SortableHeader column="languages" width="140px">Languages</SortableHeader>
-                <Table.Th style={{ width: '160px' }}>Actions</Table.Th>
+                <SortableHeader column="filename" width="30%">Name</SortableHeader>
+                <SortableHeader column="resolution" width="10%">Resolution</SortableHeader>
+                <SortableHeader column="codec" width="10%">Codec</SortableHeader>
+                <SortableHeader column="quality_score" width="8%">Quality</SortableHeader>
+                <SortableHeader column="duration" width="10%">Duration</SortableHeader>
+                <SortableHeader column="file_size" width="10%">Size</SortableHeader>
+                <SortableHeader column="languages" width="12%">Languages</SortableHeader>
+                <Table.Th style={{ width: '7%' }}>Actions</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -430,9 +430,12 @@ export default function Library() {
                     />
                   </Table.Td>
                   <Table.Td style={{ overflow: 'hidden' }}>
-                    <Tooltip label={file.filename} withArrow position="top-start" multiline maw={400}>
-                      <Text size="sm" lineClamp={1} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'help' }}>
-                        {file.filename}
+                    <Text size="sm" lineClamp={1} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {file.filename}
+                    </Text>
+                    {file.parsed_title && (
+                      <Text size="xs" c="dimmed" lineClamp={1} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {file.parsed_title} {file.parsed_year && `(${file.parsed_year})`}
                       </Text>
                     </Tooltip>
                     {file.parsed_title && (
@@ -473,8 +476,8 @@ export default function Library() {
                       ))}
                     </Group>
                   </Table.Td>
-                  <Table.Td style={{ overflow: 'visible' }}>
-                    <Group gap={4} wrap="nowrap" style={{ justifyContent: 'flex-start' }}>
+                  <Table.Td>
+                    <Group gap={4} wrap="nowrap">
                       <ActionIcon
                         variant="subtle"
                         color="blue"
