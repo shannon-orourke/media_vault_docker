@@ -257,7 +257,7 @@ export default function Library() {
   };
 
   // Sortable header component with clean minimal design
-  const SortableHeader = ({ column, children }: { column: string; children: React.ReactNode }) => {
+  const SortableHeader = ({ column, children, width }: { column: string; children: React.ReactNode; width?: string }) => {
     const isActive = sortColumn === column;
     return (
       <Table.Th
@@ -265,6 +265,7 @@ export default function Library() {
           cursor: 'pointer',
           userSelect: 'none',
           transition: 'all 0.15s ease',
+          width: width,
         }}
         onClick={() => handleSort(column)}
       >
@@ -396,10 +397,10 @@ export default function Library() {
         <Text c="dimmed">No files found. Run a scan to populate the library.</Text>
       ) : (
         <>
-          <Table striped highlightOnHover>
+          <Table striped highlightOnHover style={{ tableLayout: 'fixed', width: '100%' }}>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>
+                <Table.Th style={{ width: '3%' }}>
                   <Checkbox
                     checked={allPageFilesSelected}
                     indeterminate={somePageFilesSelected}
@@ -407,14 +408,14 @@ export default function Library() {
                     aria-label="Select all files on this page"
                   />
                 </Table.Th>
-                <SortableHeader column="filename">Name</SortableHeader>
-                <SortableHeader column="resolution">Resolution</SortableHeader>
-                <SortableHeader column="codec">Codec</SortableHeader>
-                <SortableHeader column="quality_score">Quality</SortableHeader>
-                <SortableHeader column="duration">Duration</SortableHeader>
-                <SortableHeader column="file_size">Size</SortableHeader>
-                <SortableHeader column="languages">Languages</SortableHeader>
-                <Table.Th>Actions</Table.Th>
+                <SortableHeader column="filename" width="30%">Name</SortableHeader>
+                <SortableHeader column="resolution" width="10%">Resolution</SortableHeader>
+                <SortableHeader column="codec" width="10%">Codec</SortableHeader>
+                <SortableHeader column="quality_score" width="8%">Quality</SortableHeader>
+                <SortableHeader column="duration" width="10%">Duration</SortableHeader>
+                <SortableHeader column="file_size" width="10%">Size</SortableHeader>
+                <SortableHeader column="languages" width="12%">Languages</SortableHeader>
+                <Table.Th style={{ width: '7%' }}>Actions</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -427,12 +428,12 @@ export default function Library() {
                       aria-label={`Select ${file.filename}`}
                     />
                   </Table.Td>
-                  <Table.Td>
-                    <Text size="sm" lineClamp={1} maw={300}>
+                  <Table.Td style={{ overflow: 'hidden' }}>
+                    <Text size="sm" lineClamp={1} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {file.filename}
                     </Text>
                     {file.parsed_title && (
-                      <Text size="xs" c="dimmed">
+                      <Text size="xs" c="dimmed" lineClamp={1} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {file.parsed_title} {file.parsed_year && `(${file.parsed_year})`}
                       </Text>
                     )}
@@ -454,8 +455,8 @@ export default function Library() {
                   </Table.Td>
                   <Table.Td>{file.duration ? formatDuration(file.duration) : 'N/A'}</Table.Td>
                   <Table.Td>{formatBytes(file.file_size)}</Table.Td>
-                  <Table.Td>
-                    <Group gap="xs">
+                  <Table.Td style={{ overflow: 'hidden' }}>
+                    <Group gap="xs" wrap="wrap">
                       {file.audio_languages?.map((lang) => (
                         <Badge key={lang} size="xs" variant="dot">
                           {lang}
