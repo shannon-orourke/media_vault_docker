@@ -9,13 +9,12 @@ import {
   ActionIcon,
   Text,
   Pagination,
-  Select,
   Modal,
   Checkbox,
   Button,
   Paper,
 } from '@mantine/core';
-import { IconSearch, IconTrash, IconInfoCircle, IconPlayerPlay, IconEdit, IconExternalLink } from '@tabler/icons-react';
+import { IconSearch, IconTrash, IconInfoCircle, IconPlayerPlay, IconEdit, IconExternalLink, IconChevronUp, IconChevronDown } from '@tabler/icons-react';
 import { mediaApi, type MediaFile } from '../services/api';
 import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
@@ -28,7 +27,8 @@ export default function Library() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [sortBy, setSortBy] = useState<string>('created_at');
+  const [sortColumn, setSortColumn] = useState<string>('discovered_at');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [selectedFile, setSelectedFile] = useState<MediaFile | null>(null);
   const [opened, setOpened] = useState(false);
   const [renameModalOpened, setRenameModalOpened] = useState(false);
@@ -47,7 +47,7 @@ export default function Library() {
   // Clear selections when filtered files change
   useEffect(() => {
     setSelectedFiles(new Set());
-  }, [search, sortBy]);
+  }, [search, sortColumn, sortDirection]);
 
   const loadFiles = async () => {
     try {
@@ -208,16 +208,133 @@ export default function Library() {
     return 'orange';
   };
 
+  // Parse resolution to numeric value for sorting
+  const getResolutionValue = (file: MediaFile): number => {
+    const res = file.resolution?.toLowerCase();
+    if (res?.includes('4k') || res?.includes('2160')) return 2160;
+    if (res?.includes('1080')) return 1080;
+    if (res?.includes('720')) return 720;
+    if (res?.includes('480')) return 480;
+    if (file.height) return file.height;
+    return 0;
+  };
+
+  // Get codec quality ranking for sorting
+  const getCodecValue = (codec: string | null | undefined): number => {
+    if (!codec) return 0;
+    const c = codec.toLowerCase();
+    if (c.includes('hevc') || c.includes('h265') || c.includes('h.265')) return 5;
+    if (c.includes('av1')) return 4;
+    if (c.includes('h264') || c.includes('h.264') || c.includes('avc')) return 3;
+    if (c.includes('vp9')) return 2;
+    return 1;
+  };
+
+  // Check if file has English audio
+  const hasEnglish = (languages: string[] | null | undefined): boolean => {
+    if (!languages || languages.length === 0) return false;
+    return languages.some(lang =>
+      lang.toLowerCase() === 'eng' ||
+      lang.toLowerCase() === 'en' ||
+      lang.toLowerCase() === 'english'
+    );
+  };
+
+  // Handle column header click for sorting
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      // Toggle direction if same column
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // New column - set default "best first" direction
+      setSortColumn(column);
+      setSortDirection('desc'); // Most columns default to descending (best first)
+      // Exception: name defaults to ascending (A-Z)
+      if (column === 'filename') {
+        setSortDirection('asc');
+      }
+    }
+  };
+
+  // Sortable header component with clean minimal design
+  const SortableHeader = ({ column, children }: { column: string; children: React.ReactNode }) => {
+    const isActive = sortColumn === column;
+    return (
+      <Table.Th
+        style={{
+          cursor: 'pointer',
+          userSelect: 'none',
+          transition: 'all 0.15s ease',
+        }}
+        onClick={() => handleSort(column)}
+      >
+        <Group gap={4} wrap="nowrap">
+          <Text
+            size="sm"
+            fw={isActive ? 600 : 500}
+            c={isActive ? 'blue' : 'dimmed'}
+            style={{ transition: 'all 0.15s ease' }}
+          >
+            {children}
+          </Text>
+          {isActive && (
+            <div style={{ opacity: 0.7 }}>
+              {sortDirection === 'desc' ? (
+                <IconChevronDown size={14} stroke={2.5} />
+              ) : (
+                <IconChevronUp size={14} stroke={2.5} />
+              )}
+            </div>
+          )}
+        </Group>
+      </Table.Th>
+    );
+  };
+
   const filteredFiles = files
     .filter((file) =>
       file.filename?.toLowerCase().includes(search.toLowerCase()) ||
       file.filepath?.toLowerCase().includes(search.toLowerCase())
     )
     .sort((a, b) => {
-      if (sortBy === 'quality_score') return (b.quality_score || 0) - (a.quality_score || 0);
-      if (sortBy === 'file_size') return (b.file_size || 0) - (a.file_size || 0);
-      if (sortBy === 'filename') return (a.filename || '').localeCompare(b.filename || '');
-      return new Date(b.discovered_at).getTime() - new Date(a.discovered_at).getTime();
+      let comparison = 0;
+
+      switch (sortColumn) {
+        case 'filename':
+          comparison = (a.filename || '').localeCompare(b.filename || '');
+          break;
+        case 'resolution':
+          comparison = getResolutionValue(b) - getResolutionValue(a);
+          break;
+        case 'codec':
+          comparison = getCodecValue(b.video_codec) - getCodecValue(a.video_codec);
+          break;
+        case 'quality_score':
+          comparison = (b.quality_score || 0) - (a.quality_score || 0);
+          break;
+        case 'duration':
+          comparison = (b.duration || 0) - (a.duration || 0);
+          break;
+        case 'file_size':
+          comparison = (b.file_size || 0) - (a.file_size || 0);
+          break;
+        case 'languages':
+          // English first, then alphabetical
+          const aHasEng = hasEnglish(a.audio_languages);
+          const bHasEng = hasEnglish(b.audio_languages);
+          if (aHasEng && !bHasEng) comparison = -1;
+          else if (!aHasEng && bHasEng) comparison = 1;
+          else {
+            const aLang = a.audio_languages?.[0] || '';
+            const bLang = b.audio_languages?.[0] || '';
+            comparison = aLang.localeCompare(bLang);
+          }
+          break;
+        default: // discovered_at
+          comparison = new Date(b.discovered_at).getTime() - new Date(a.discovered_at).getTime();
+      }
+
+      return sortDirection === 'asc' ? -comparison : comparison;
     });
 
   const paginatedFiles = filteredFiles.slice((page - 1) * itemsPerPage, page * itemsPerPage);
@@ -233,27 +350,12 @@ export default function Library() {
         <Text c="dimmed">{filteredFiles.length} files</Text>
       </Group>
 
-      <Group>
-        <TextInput
-          placeholder="Search files..."
-          leftSection={<IconSearch size={16} />}
-          value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
-          style={{ flex: 1 }}
-        />
-        <Select
-          placeholder="Sort by"
-          value={sortBy}
-          onChange={(value) => setSortBy(value || 'discovered_at')}
-          data={[
-            { value: 'discovered_at', label: 'Date Added' },
-            { value: 'filename', label: 'Name' },
-            { value: 'quality_score', label: 'Quality Score' },
-            { value: 'file_size', label: 'File Size' },
-          ]}
-          w={200}
-        />
-      </Group>
+      <TextInput
+        placeholder="Search files..."
+        leftSection={<IconSearch size={16} />}
+        value={search}
+        onChange={(e) => setSearch(e.currentTarget.value)}
+      />
 
       {/* Batch Action Bar */}
       {selectedCount > 0 && (
@@ -305,13 +407,13 @@ export default function Library() {
                     aria-label="Select all files on this page"
                   />
                 </Table.Th>
-                <Table.Th>Name</Table.Th>
-                <Table.Th>Resolution</Table.Th>
-                <Table.Th>Codec</Table.Th>
-                <Table.Th>Quality</Table.Th>
-                <Table.Th>Duration</Table.Th>
-                <Table.Th>Size</Table.Th>
-                <Table.Th>Languages</Table.Th>
+                <SortableHeader column="filename">Name</SortableHeader>
+                <SortableHeader column="resolution">Resolution</SortableHeader>
+                <SortableHeader column="codec">Codec</SortableHeader>
+                <SortableHeader column="quality_score">Quality</SortableHeader>
+                <SortableHeader column="duration">Duration</SortableHeader>
+                <SortableHeader column="file_size">Size</SortableHeader>
+                <SortableHeader column="languages">Languages</SortableHeader>
                 <Table.Th>Actions</Table.Th>
               </Table.Tr>
             </Table.Thead>
