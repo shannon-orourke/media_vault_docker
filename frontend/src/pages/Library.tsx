@@ -13,6 +13,7 @@ import {
   Checkbox,
   Button,
   Paper,
+  Tooltip,
 } from '@mantine/core';
 import { IconSearch, IconTrash, IconInfoCircle, IconPlayerPlay, IconEdit, IconExternalLink, IconChevronUp, IconChevronDown } from '@tabler/icons-react';
 import { mediaApi, type MediaFile } from '../services/api';
@@ -436,6 +437,17 @@ export default function Library() {
                       <Text size="xs" c="dimmed" lineClamp={1} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {file.parsed_title} {file.parsed_year && `(${file.parsed_year})`}
                       </Text>
+                    </Tooltip>
+                    {file.parsed_title && (
+                      <Tooltip
+                        label={`${file.parsed_title}${file.parsed_year ? ` (${file.parsed_year})` : ''}`}
+                        withArrow
+                        position="bottom-start"
+                      >
+                        <Text size="xs" c="dimmed" lineClamp={1} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'help' }}>
+                          {file.parsed_title} {file.parsed_year && `(${file.parsed_year})`}
+                        </Text>
+                      </Tooltip>
                     )}
                   </Table.Td>
                   <Table.Td>
