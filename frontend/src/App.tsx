@@ -97,9 +97,9 @@ function AppLayout() {
             <Title
               order={4}
               style={{
-                fontWeight: 600,
+                fontWeight: 700,
                 color: '#ffffff',
-                letterSpacing: '-0.02em',
+                letterSpacing: '-0.03em',
               }}
             >
               MediaVault
@@ -115,7 +115,7 @@ function AppLayout() {
               key={item.path}
               component="button"
               label={item.label}
-              leftSection={<item.icon size={18} stroke={1.8} />}
+              leftSection={<item.icon size={20} stroke={2.0} />}
               active={location.pathname === item.path}
               onClick={() => navigate(item.path)}
               style={{

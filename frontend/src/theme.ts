@@ -40,12 +40,55 @@ const darkGray: MantineColorsTuple = [
   '#575757',
 ];
 
+// Semantic colors for better UI communication
+const successGreen: MantineColorsTuple = [
+  '#ecfdf5',
+  '#d1fae5',
+  '#a7f3d0',
+  '#6ee7b7',
+  '#34d399',
+  '#10b981',
+  '#059669',
+  '#047857',
+  '#065f46',
+  '#064e3b',
+];
+
+const warningAmber: MantineColorsTuple = [
+  '#fffbeb',
+  '#fef3c7',
+  '#fde68a',
+  '#fcd34d',
+  '#fbbf24',
+  '#f59e0b',
+  '#d97706',
+  '#b45309',
+  '#92400e',
+  '#78350f',
+];
+
+const dangerRed: MantineColorsTuple = [
+  '#fef2f2',
+  '#fee2e2',
+  '#fecaca',
+  '#fca5a5',
+  '#f87171',
+  '#ef4444',
+  '#dc2626',
+  '#b91c1c',
+  '#991b1b',
+  '#7f1d1d',
+];
+
 export const theme = createTheme({
   primaryColor: 'portainerBlue',
   colors: {
     navyBlue,
     portainerBlue,
     darkGray,
+    successGreen,
+    warningAmber,
+    dangerRed,
   },
   fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   defaultRadius: 'sm',
@@ -73,6 +116,7 @@ export const theme = createTheme({
           color: '#a0a0a0',
           fontWeight: 500,
           padding: '10px 12px',
+          transition: 'all 200ms ease-in-out',
           '&:hover': {
             backgroundColor: '#1f1f1f',
             color: '#ffffff',
@@ -80,13 +124,19 @@ export const theme = createTheme({
           '&[data-active]': {
             backgroundColor: '#1e5ee6',
             color: '#ffffff',
+            borderLeft: '3px solid #3889fe',
+            paddingLeft: '9px',
             '&:hover': {
-              backgroundColor: '#1e5ee6',
+              backgroundColor: '#1349b8',
             },
           },
         },
         label: {
           fontSize: '14px',
+          fontWeight: 500,
+        },
+        section: {
+          marginRight: '12px',
         },
       }),
     },
@@ -102,6 +152,11 @@ export const theme = createTheme({
         root: {
           backgroundColor: '#1a1a1a',
           borderColor: '#2d2d2d',
+          transition: 'all 200ms ease-in-out',
+          '&:hover': {
+            transform: 'translateY(-2px)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+          },
         },
       },
     },

@@ -54,7 +54,13 @@ body {
 .mantine-Card-root {
   background-color: var(--portainer-bg-secondary) !important;
   border: 1px solid var(--portainer-border) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  transition: all 200ms ease-in-out !important;
+}
+
+.mantine-Card-root:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
 .mantine-Paper-root {
@@ -73,10 +79,15 @@ body {
 
 .mantine-Table-tr {
   border-bottom: 1px solid var(--portainer-border) !important;
+  transition: background-color 150ms ease-in-out !important;
+}
+
+.mantine-Table-tbody .mantine-Table-tr:nth-of-type(even) {
+  background-color: #181818 !important;
 }
 
 .mantine-Table-tr:hover {
-  background-color: #1f1f1f !important;
+  background-color: #252525 !important;
 }
 
 .mantine-Table-th {
