@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { AppShell, Group, Title, NavLink, Container, Burger } from '@mantine/core';
+import { AppShell, Group, Title, NavLink, Container, ActionIcon, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
   IconHome,
@@ -9,6 +9,8 @@ import {
   IconScan,
   IconPackage,
   IconTrash,
+  IconLayoutSidebarLeftCollapse,
+  IconLayoutSidebarLeftExpand,
 } from '@tabler/icons-react';
 import Dashboard from './pages/Dashboard';
 import Library from './pages/Library';
@@ -21,7 +23,7 @@ import PendingDeletions from './pages/PendingDeletions';
 function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [opened, { toggle }] = useDisclosure();
+  const [opened, { toggle }] = useDisclosure(true);
 
   const navItems = [
     { icon: IconHome, label: 'Dashboard', path: '/dashboard' },
@@ -39,15 +41,38 @@ function AppLayout() {
       navbar={{
         width: 250,
         breakpoint: 'sm',
-        collapsed: { mobile: !opened }
+        collapsed: { mobile: !opened, desktop: !opened }
       }}
       padding="md"
+      transitionDuration={300}
+      transitionTimingFunction="ease-in-out"
     >
       <AppShell.Header>
         <Group h="100%" px="md" justify="space-between">
-          <Group>
-            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-            <Title order={3}>MediaVault</Title>
+          <Group gap="md">
+            <Tooltip
+              label={opened ? 'Hide sidebar' : 'Show sidebar'}
+              position="right"
+              withArrow
+              transitionProps={{ transition: 'fade', duration: 200 }}
+            >
+              <ActionIcon
+                onClick={toggle}
+                variant="subtle"
+                size="lg"
+                color="gray"
+                style={{
+                  transition: 'all 200ms ease-in-out',
+                }}
+              >
+                {opened ? (
+                  <IconLayoutSidebarLeftCollapse size={22} stroke={1.5} />
+                ) : (
+                  <IconLayoutSidebarLeftExpand size={22} stroke={1.5} />
+                )}
+              </ActionIcon>
+            </Tooltip>
+            <Title order={3} style={{ fontWeight: 500 }}>MediaVault</Title>
           </Group>
         </Group>
       </AppShell.Header>
